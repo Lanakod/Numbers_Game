@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Numbers Game</string>
+    <string name="description">Карта</string>
+    <string name="restart">Перезапуск!</string>
+    <string name="clicks">Количество кликов:</string>
+    <string name="info">Информация</string>
+</resources>

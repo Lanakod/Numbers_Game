@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" author="Maxim Lanakod Malakhov"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.left2create.numbergame">
 
@@ -17,5 +17,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

@@ -2,6 +2,12 @@
     <string name="app_name">Numbers Game</string>
     <string name="description">Карта</string>
     <string name="restart">Перезапуск!</string>
-    <string name="clicks">Количество кликов:</string>
+    <string name="clicks">Счёт:</string>
+    <string name="combo">Комбо:</string>
     <string name="info">Информация</string>
+    <string name="selectDifficulty">Выберите сложность:</string>
+    <string name="easy">Легко (4х4)</string>
+    <string name="medium">Средне (6х6)</string>
+    <string name="hard">Сложно (8х8)</string>
+    <string name="madness">Безумие (10х10)</string>
 </resources>

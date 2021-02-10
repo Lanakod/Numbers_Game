@@ -1,67 +1,91 @@
 package com.left2create.numbergame
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import java.util.*
 import kotlin.concurrent.schedule
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
-    private val table: Array<Int> = Array(16) {-1}
-    private var nullImg: ImageView? = null
-    private var imgArray: Array<ImageView?> = arrayOfNulls(16)
+    private lateinit var table: Array<Int>
+    private lateinit var nullImg: ImageView
+    private lateinit var imgArray: Array<ImageView?>
 
-    private var first = nullImg
-    private var second = nullImg
+    private lateinit var first: ImageView
+    private lateinit var second: ImageView
     private var isFirst = false
     private var isSecond = false
-    private var clickAmount = 0
+    private var score = 0
+    private var combo = 0
     private var canChoose = true
+    private var size = 0
 
-    private var tvScore: TextView? = null
+    private lateinit var tvScore: TextView
+
+    private lateinit var layoutGrid: androidx.gridlayout.widget.GridLayout
+
+    private var createdImageId = 3228000
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        findViewById<TextView>(R.id.textView).text = "%s %d".format("Количество кликов:\n", clickAmount)
 
-        imgArray = arrayOf(findViewById(R.id.imageView),
-                               findViewById(R.id.imageView2),
-                               findViewById(R.id.imageView3),
-                               findViewById(R.id.imageView4),
-                               findViewById(R.id.imageView5),
-                               findViewById(R.id.imageView6),
-                               findViewById(R.id.imageView7),
-                               findViewById(R.id.imageView8),
-                               findViewById(R.id.imageView9),
-                               findViewById(R.id.imageView10),
-                               findViewById(R.id.imageView11),
-                               findViewById(R.id.imageView12),
-                               findViewById(R.id.imageView13),
-                               findViewById(R.id.imageView14),
-                               findViewById(R.id.imageView15),
-                               findViewById(R.id.imageView16))
+        if(intent.hasExtra("difficulty")) size = intent.getIntExtra("difficulty", 0)
+
         tvScore = findViewById(R.id.textView)
+        tvScore.text = "%s %d %s %d".format("Счёт: ", score, "\nКомбо: ", combo)
+
+        layoutGrid = findViewById(R.id.gridLayout)
+
+
+        layoutGrid.columnCount = size
+        layoutGrid.rowCount = size
+        table = Array(size*size) {-1}
+        imgArray = arrayOfNulls(size*size)
+
         nullImg = findViewById(R.id.null_imageView)
         first = nullImg
         second = nullImg
-        for (i in 0..15)
+        for (i in 0 until size*size)
         {
             if (table[i] == -1)
             {
                 table[i] = (0..9).random()
-                var it = (0..15).random()
-                while(table[it] != -1) it = (0..15).random()
+                var it: Int
+                do it = (0 until size*size).random()
+                while(table[it] != -1)
                 table[it] = table[i]
             }
+
+            imgArray[i] = findViewById(imageCreator())
         }
     }
 
-    fun chooserClick(view: View)
+    private fun imageCreator(): Int{
+        val createdImage = ImageView(this)
+        var imgSize = 0
+        when(size)
+        {
+            4 -> imgSize = 85.dpToPixels(this).roundToInt()
+            6 -> imgSize = 62.dpToPixels(this).roundToInt()
+            8 -> imgSize = 45.dpToPixels(this).roundToInt()
+            10 -> imgSize = 35.dpToPixels(this).roundToInt()
+        }
+
+        createdImage.setImageResource(R.drawable.empty)
+        createdImage.layoutParams = LinearLayout.LayoutParams(imgSize, imgSize)
+        createdImage.setOnClickListener{ chooserClick(createdImage) }
+        createdImage.id = createdImageId++
+        layoutGrid.addView(createdImage)
+        return createdImage.id
+    }
+
+    private fun chooserClick(view: View)
     {
         if(canChoose)
         {
@@ -70,14 +94,12 @@ class MainActivity : AppCompatActivity() {
                 first = findViewById(view.id)
                 setImage(first)
                 isFirst = true
-                tvScore?.text = "%s %d".format("Количество кликов:\n", ++clickAmount)
             }
-            else if(first?.id != view.id)
+            else if(first.id != view.id)
             {
                 second = findViewById(view.id)
                 setImage(second)
                 isSecond = true
-                tvScore?.text = "%s %d".format("Количество кликов:\n", ++clickAmount)
             }
             if(isFirst && isSecond)
             {
@@ -88,12 +110,19 @@ class MainActivity : AppCompatActivity() {
                     canChoose = false
                     hideImages(first, second)
                     valueCleaner()
+
+                    score += 100 + 50*combo++
+                    tvScore.text = "%s %d %s %d".format("Счёт: ", score, "\nКомбо: ", combo)
                 }
                 else
                 {
                     canChoose = false
                     resetImages(first, second)
                     valueCleaner()
+                    if(score >= 10) score -= 10
+                    else score = 0
+                    combo = 0
+                    tvScore.text = "%s %d %s %d".format("Счёт: ", score, "\nКомбо: ", combo)
                 }
             }
         }
@@ -153,4 +182,9 @@ class MainActivity : AppCompatActivity() {
     {
         Toast.makeText(this@MainActivity, "Разработчик Малахов М.А.\nAKA Lanakod", Toast.LENGTH_LONG).show()
     }
+
+    // extension function to convert dp to equivalent pixels
+    private fun Int.dpToPixels(context: Context):Float = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,this.toFloat(),context.resources.displayMetrics
+    )
 }
